@@ -38,5 +38,51 @@
   <main>
     <h1>BIM + AI Lab</h1>
   </main>
+  <div id="viewer"></div>
+
+  <div id="info">點擊構件後顯示資料</div>
+
+  <script src="app.js">
+function createWall(wall) {
+  const dx = wall.endX - wall.startX;
+  const dy = wall.endY - wall.startY;
+
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx);
+
+  const centerX = (wall.startX + wall.endX) / 2;
+  const centerZ = (wall.startY + wall.endY) / 2;
+
+  const geometry = new THREE.BoxGeometry(
+    length,
+    wall.height,
+    wall.thickness
+  );
+
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xe8e3d9
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+
+  mesh.position.set(
+    centerX,
+    wall.height / 2,
+    centerZ
+  );
+
+  mesh.rotation.y = -angle;
+
+  mesh.userData = {
+    id: wall.id,
+    type: "wall",
+    data: wall
+  };
+
+  scene.add(mesh);
+}
+    
+  </script>
+  
 </body>
 </html>
