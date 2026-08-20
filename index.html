@@ -3,86 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>BIM + AI Lab</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
       background: #f3f1ec;
       color: #29332f;
       font-family: Arial, sans-serif;
     }
 
-    main {
-      width: min(80%, 600px);
-      padding: 48px 32px;
+    header {
+      padding: 20px 24px;
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+      border-bottom: 1px solid #ddd8ce;
     }
 
     h1 {
-      margin-top: 0;
-      font-size: 40px;
+      margin: 0;
+      font-size: 26px;
     }
 
-    p {
-      line-height: 1.8;
+    header p {
+      margin: 8px 0 0;
       color: #66706b;
+    }
+
+    #viewer {
+      width: 100%;
+      height: 65vh;
+      background: #e8e6e0;
+    }
+
+    #info {
+      margin: 16px;
+      padding: 16px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    canvas {
+      display: block;
     }
   </style>
 </head>
+
 <body>
-  <main>
+  <header>
     <h1>BIM + AI Lab</h1>
-  </main>
+    <p>第一面由資料生成的牆</p>
+  </header>
+
   <div id="viewer"></div>
 
-  <div id="info">點擊構件後顯示資料</div>
+  <div id="info">
+    構件：W-001<br>
+    長度：5 m<br>
+    高度：2.8 m<br>
+    厚度：0.15 m
+  </div>
 
-  <script src="app.js">
-function createWall(wall) {
-  const dx = wall.endX - wall.startX;
-  const dy = wall.endY - wall.startY;
+  <script type="module">
+    import * as THREE from
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
-  const length = Math.sqrt(dx * dx + dy * dy);
-  const angle = Math.atan2(dy, dx);
+    const viewer = document.getElementById("viewer");
 
-  const centerX = (wall.startX + wall.endX) / 2;
-  const centerZ = (wall.startY + wall.endY) / 2;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xe8e6e0);
 
-  const geometry = new THREE.BoxGeometry(
-    length,
-    wall.height,
-    wall.thickness
-  );
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      viewer.clientWidth / viewer.clientHeight,
+      0.1,
+      100
+    );
 
-  const material = new THREE.MeshStandardMaterial({
-    color: 0xe8e3d9
-  });
+    camera.position.set(7, 5, 7);
+    camera.lookAt(2.5, 1.2, 0);
 
-  const mesh = new THREE.Mesh(geometry, material);
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true
+    });
 
-  mesh.position.set(
-    centerX,
-    wall.height / 2,
-    centerZ
-  );
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(
+      viewer.clientWidth,
+      viewer.clientHeight
+    );
 
-  mesh.rotation.y = -angle;
+    viewer.appendChild(renderer.domElement);
 
-  mesh.userData = {
-    id: wall.id,
-    type: "wall",
-    data: wall
-  };
+    const ambientLight = new THREE.AmbientLight(
+      0xffffff,
+      1.5
+    );
 
-  scene.add(mesh);
-}
-    
+    scene.add(ambientLight);
+
+    const directionalLight =
+      new THREE.DirectionalLight(0xffffff, 2);
+
+    directionalLight.position.set(4, 8, 6);
+    scene.add(directionalLight);
+
+    const grid = new THREE.GridHelper(
+      10,
+      20,
+      0x999999,
+      0xcccccc
+    );
+
+    scene.add(grid);
+
+    const walls = [
+      {
+        id: "W-001",
+        startX: 0,
+        startY: 0,
+        endX: 5,
+        endY: 0,
+        thickness: 0.15,
+        height: 2.8
+      }
+    ];
+
+    function createWall(wall) {
+      const dx = wall.endX - wall.startX;
+      const dy = wall.endY - wall.startY;
+
+      const length = Math.sqrt(
+        dx * dx + dy * dy
+      );
+
+      const angle = Math.atan2(dy, dx);
+
+      const centerX =
+        (wall.startX + wall.endX) / 2;
+
+      const centerZ =
+        (wall.startY + wall.endY) / 2;
+
+      const geometry = new THREE.BoxGeometry(
+        length,
+        wall.height,
+        wall.thickness
+      );
+
+      const material =
+        new THREE.MeshStandardMaterial({
+          color: 0xd8cdbb
+        });
+
+      const mesh = new THREE.Mesh(
+        geometry,
+        material
+      );
+
+      mesh.position.set(
+        centerX,
+        wall.height / 2,
+        centerZ
+      );
+
+      mesh.rotation.y = -angle;
+
+      mesh.userData = {
+        id: wall.id,
+        type: "wall",
+        data: wall
+      };
+
+      scene.add(mesh);
+    }
+
+    walls.forEach(createWall);
+
+    function render() {
+      renderer.render(scene, camera);
+    }
+
+    render();
+
+    window.addEventListener("resize", () => {
+      camera.aspect =
+        viewer.clientWidth /
+        viewer.clientHeight;
+
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(
+        viewer.clientWidth,
+        viewer.clientHeight
+      );
+
+      render();
+    });
   </script>
-  
 </body>
 </html>
