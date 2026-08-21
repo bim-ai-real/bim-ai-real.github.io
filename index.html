@@ -85,8 +85,8 @@
       100
     );
 
-    camera.position.set(7, 5, 7);
-    camera.lookAt(2.5, 1.2, 0);
+    camera.position.set(8, 7, 9);
+camera.lookAt(2.5, 1.2, 2);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true
@@ -122,17 +122,44 @@
 
     scene.add(grid);
 
-    const walls = [
-      {
-        id: "W-001",
-        startX: 0,
-        startY: 0,
-        endX: 5,
-        endY: 0,
-        thickness: 0.15,
-        height: 2.8
-      }
-    ];
+   const walls = [
+  {
+    id: "W-001",
+    startX: 0,
+    startY: 0,
+    endX: 5,
+    endY: 0,
+    thickness: 0.15,
+    height: 2.8
+  },
+  {
+    id: "W-002",
+    startX: 5,
+    startY: 0,
+    endX: 5,
+    endY: 4,
+    thickness: 0.15,
+    height: 2.8
+  },
+  {
+    id: "W-003",
+    startX: 5,
+    startY: 4,
+    endX: 0,
+    endY: 4,
+    thickness: 0.15,
+    height: 2.8
+  },
+  {
+    id: "W-004",
+    startX: 0,
+    startY: 4,
+    endX: 0,
+    endY: 0,
+    thickness: 0.15,
+    height: 2.8
+  }
+];
 
     function createWall(wall) {
       const dx = wall.endX - wall.startX;
